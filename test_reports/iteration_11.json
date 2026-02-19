@@ -1,0 +1,85 @@
+{
+  "summary": "Completed comprehensive frontend testing of three new admin features: (1) Enhanced Merge with side-by-side comparison, (2) Unassign from Funds capability, (3) View Investor Details from All Investors table. All features are working correctly.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "DuplicateInvestorsPage",
+        "issues": ["Console warning: nested button elements inside expandable group header - minor accessibility issue but doesn't affect functionality"]
+      }
+    ]
+  },
+
+  "passed_tests": [
+    "Feature 1: Compare & Merge Modal - Side-by-side comparison shows Source 1 (Oldest) and Source 2 (Newer) columns",
+    "Feature 1: Compare & Merge Modal - Merged Result column in center with editable values",
+    "Feature 1: Compare & Merge Modal - Click on value to select which source to use",
+    "Feature 1: Compare & Merge Modal - Green highlighting shows selected source for each field",
+    "Feature 1: Compare & Merge Modal - Identity Information section expandable",
+    "Feature 1: Compare & Merge Modal - Contact & Relationship section expandable",
+    "Feature 1: Compare & Merge Modal - Investment Context section expandable",
+    "Feature 1: Compare & Merge Modal - Step 1 (Compare & Merge) and Step 2 (Assign to Funds) indicators",
+    "Feature 1: Compare & Merge Modal - Step 2 shows fund checkboxes with 'Currently Assigned' badges",
+    "Feature 1: Compare & Merge Modal - Merge & Assign button present",
+    "Feature 2: AssignToFundModal - Shows 'Current Fund Assignments' section",
+    "Feature 2: AssignToFundModal - Original fund shows 'Original' badge",
+    "Feature 2: AssignToFundModal - Original fund shows 'Cannot unassign original' text",
+    "Feature 2: AssignToFundModal - Non-original funds show 'Unassign' button",
+    "Feature 2: AssignToFundModal - Unassign button successfully removes investor from fund",
+    "Feature 2: AssignToFundModal - Success toast 'Unassigned from [Fund Name]' appears",
+    "Feature 2: AssignToFundModal - Modal refreshes to show updated assignments after unassign",
+    "Feature 3: AllInvestorsPage - Actions dropdown shows 'View Details' option",
+    "Feature 3: InvestorDetailModal - Slide-over panel opens from right side",
+    "Feature 3: InvestorDetailModal - Shows investor name and avatar",
+    "Feature 3: InvestorDetailModal - Shows Fund Assignments with count and badges",
+    "Feature 3: InvestorDetailModal - Shows Identity Information section (Title, Gender, Nationality, Age, Job Title, Sector)",
+    "Feature 3: InvestorDetailModal - Shows Contact Information section (Contact Name, Contact Title, Phone, Email)",
+    "Feature 3: InvestorDetailModal - Shows Investment Context section (Wealth, Has Invested Before, Expected Ticket, Investment Size)",
+    "Feature 3: InvestorDetailModal - Shows metadata (Created date, Updated date, Source badge)",
+    "Backend API: GET /api/admin/duplicate-investors returns duplicate groups correctly",
+    "Backend API: GET /api/investors/{id}/assignments returns fund assignments with is_legacy flag",
+    "Backend API: DELETE /api/admin/investor-fund-assignments/{id} successfully unassigns investor from fund"
+  ],
+
+  "test_report_links": [
+    "/app/test_reports/iteration_11.json"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "Minor: DuplicateInvestorsPage.js has nested button elements (Quick Merge and Compare & Merge buttons inside expandable button) - causes React hydration warning but doesn't break functionality",
+    "All three features properly implement admin-only access control",
+    "MergeCompareModal correctly handles two-step merge process with data combination",
+    "AssignToFundModal properly distinguishes legacy (original) assignments from new assignments",
+    "InvestorDetailModal uses Sheet component for slide-over panel - good UX pattern"
+  ],
+
+  "updated_files": [],
+
+  "success_rate": {
+    "backend": "100% (all API endpoints working)",
+    "frontend": "100% (all 3 features working correctly)"
+  },
+
+  "test_credentials": {
+    "Admin": {
+      "email": "khaled@alknzventures.com",
+      "password": "Admin123!"
+    }
+  },
+
+  "seed_data_creation": "No new seed data created. Used existing duplicate investor 'John Smith' (2 records in ALKNZ Fund I and Saferoad SPV) and 'Missing Ticket Corp' (assigned to 2 funds after unassign test).",
+
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Three new admin features tested and working: (1) MergeCompareModal on Duplicates page allows side-by-side comparison of duplicate records with data selection and editing, then fund assignment in Step 2. (2) AssignToFundModal now shows existing fund assignments with Unassign buttons for non-legacy assignments - legacy/original fund cannot be unassigned. (3) InvestorDetailModal is a slide-over panel accessible from All Investors page Actions dropdown showing full investor profile. 'Missing Ticket Corp' now has 2 fund assignments (ALKNZ Fund I as original, Saferoad SPV as assigned) after Test Fund was unassigned during testing."
+}

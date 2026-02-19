@@ -1,0 +1,523 @@
+# ALKNZ Fund Management CRM - Product Requirements Document
+
+## Original Problem Statement
+Create a private internal web app called 'ALKNZ Fund Management CRM' with NO public website. Build ONLY: (A) Login page, and (B) Admin Console + Fund Manager Dashboard. Disable public signup. Implement role-based access with 2 roles: Admin and Fund Manager.
+
+## User Personas
+1. **Admin** - Full access to portal management
+   - Can create/manage users (Admins and Fund Managers)
+   - Can create/manage funds and SPVs
+   - Can assign Fund Managers to specific Funds
+   - Can upload profile pictures for users
+   - Can reset user passwords
+   - Can view all investors across all funds
+   - Can detect and merge duplicate investors
+   
+2. **Fund Manager** - Investor relationship management
+   - Can view investors associated with their assigned funds ONLY
+   - Can create/edit/delete investor profiles
+   - Can manage detailed investor data (Investment Identity + Investment Context)
+   - Can manage fundraising pipeline via Kanban board
+   - Can add quick notes to investors via mini profile
+   - Can view Capital Overview dashboard
+   - Can import investors via CSV file
+   - Must reset auto-generated password on first login
+
+## Core Requirements
+- Private portal with NO public signup
+- JWT-based authentication with forced password reset flow
+- Role-based access control (ADMIN, FUND_MANAGER)
+- Dark dashboard UI with ALKNZ brand colors (blue/black gradient)
+- Admin credentials: khaled@alknzventures.com / Admin123!
+
+## What's Been Implemented (Jan 27, 2026)
+
+### Latest: Admin Dashboard KPI Fix + Fund Performance Snapshot + Investor Intelligence + Execution Health + Export Report ✅ (Jan 28, 2026)
+- [x] **Fixed Admin Dashboard KPI Calculations Bug**
+  - Root cause: `/api/dashboard/stats` was using wrong collection (`investor_fund_assignments` with `pipeline_stage_id`)
+  - Fix: Now uses `investor_pipeline` collection with `stage_id` (same as `/api/capital-overview`)
+  - Aggregates capital across ALL funds correctly
+- [x] **KPI Metrics Now Working:**
+  - Total Deployed Capital: Sum of `investment_size` for investors in "Money Transfer" or "Transfer Date" stages
+  - Total Potential Capital: Sum of `expected_ticket_amount` for investors in early pipeline stages  
+  - Capital in Final Stages: Sum for investors in "Signing Contract", "Signing Subscription", "Letter for Capital Call" stages
+  - Active Fund Managers: Count of users with role=FUND_MANAGER and status=ACTIVE
+- [x] **NEW: Fund Performance Snapshot Table (Section 3)**
+  - Comparative table with one row per fund
+  - Columns: Fund Name, Target Capital, Deployed Capital, % of Goal, Final Stages, Active Investors, Avg. Investment, Last Close, Alerts
+  - Progress bars color-coded: green (>=100%), yellow (>=50%), red (<50%)
+  - Expandable alert rows with clickable badges
+  - Conditional alerts for:
+    - Funds behind target (<50% achieved) - warning
+    - Stalled final-stage capital (>30 days no closes with capital waiting) - warning
+    - Investor concentration risk (single investor >40% of deployed) - critical if >60%, warning if >40%
+  - Summary footer with fund count and alert status legend
+- [x] **API Endpoint:** `GET /api/dashboard/fund-performance`
+  - Returns array of fund objects with all metrics
+  - Sorted by deployed capital descending
+- [x] **NEW: Investor Intelligence Section (Section 5)**
+  - Aggregated insights across all investors
+  - **Investor Geography**: Top 10 countries with count and progress bars
+  - **Investor Type Distribution**: Type breakdown with percentages
+  - **Avg Ticket Size by Type**: Average investment amount per investor type
+  - **Relationship Strength (Fit Score)**: Color-coded distribution (Excellent, Good, Fair, Poor, Unknown)
+  - **Investor Stage Distribution**: Grid layout with color-coded boxes:
+    - Green for deployed stages (Money Transfer, Transfer Date)
+    - Yellow for final stages (Signing Contract, etc.)
+- [x] **API Endpoint:** `GET /api/dashboard/investor-intelligence`
+- [x] **NEW: Execution Health & Bottlenecks Section (Section 6)**
+  - Operational signals and team performance
+  - **Key Metrics Row:**
+    - Overdue Tasks (with priority breakdown: high/med/low)
+    - Avg Response Time (days between follow-ups)
+    - Meetings (completed vs scheduled with completion rate)
+    - Active Managers (with assigned tasks)
+  - **Tasks per Fund Manager Table**: Shows Total, Open, Done, Overdue per FM
+  - **Bottlenecks by Category**: Legal, IC, Documentation, Compliance
+    - Shows task count and capital blocked per category
+    - Capital blocked calculated from investors in signing stages
+- [x] **API Endpoint:** `GET /api/dashboard/execution-health`
+- [x] **NEW: Export Report Feature**
+  - Blue gradient "Export Report" button in page header
+  - Generates comprehensive PDF report with:
+    - ALKNZ logo at the top
+    - Report title and generation timestamp
+    - Generated by user name and email
+    - State of Business Overview (KPI table)
+    - Fund Performance Snapshot (fund comparison table)
+    - Investor Intelligence (Geography + Types + Stages)
+    - Execution Health (Overdue tasks, Tasks per FM, Bottlenecks)
+    - Footer with page numbers and "Confidential" label
+  - Uses jsPDF + jspdf-autotable libraries
+
+### Research Capture Tab ✅ (Jan 27, 2026)
+- [x] **New "Research Capture" tab** in Fund Manager dashboard with radar icon
+- [x] **ALKNZ Replit Capture API Integration**
+  - Base URL: https://data-linker-mariamsallam05.replit.app
+  - Authorization: Bearer token configured
+  - Green status indicator when API connected
+  - "Sync from Chrome Extension" button to pull new captures
+  - GET /api/external-captures/verify - Check API connection
+  - GET /api/external-captures?fund_id=X - Fetch from external API
+  - GET /api/external-captures/sync?fund_id=X - Import new captures
+- [x] **Left Panel - List View**
+  - Status filter badges: All, Pending (clock), Accepted (checkmark), Rejected (X)
+  - Search bar for filtering captures
+  - Capture cards showing: investor name, firm, status badge, source URL
+  - Sync button + Refresh button
+- [x] **Right Panel - Detail View**
+  - Full capture details with avatar header
+  - Action buttons: Edit, Reject, Accept, Delete
+  - Sections: Contact Information, Location, Online Presence, Notes, Capture Source
+  - Edit mode for modifying data before accepting
+- [x] **Accept Flow**
+  - Creates new Investor Profile from capture data
+  - Sets source='research_capture' for tracking
+  - Creates fund assignment for the new investor
+  - Investor appears in Fund Manager's list AND Admin's global pool
+  - Toast notification confirms investor creation
+- [x] **Reject Flow**
+  - Marks capture as rejected without creating investor
+  - Can add rejection reason (optional)
+- [x] **Delete Flow**
+  - Removes capture record entirely
+- [x] **API Endpoints**
+  - POST /api/research-capture - Create capture (for Chrome extension)
+  - GET /api/research-capture?fund_id=X&status=Y - List captures
+  - GET /api/research-capture/{id} - Get single capture
+  - PUT /api/research-capture/{id} - Update capture
+  - POST /api/research-capture/{id}/accept - Accept and create investor
+  - POST /api/research-capture/{id}/reject - Reject capture
+  - DELETE /api/research-capture/{id} - Delete capture
+
+### Collapsible Investor Sidebar ✅ (Jan 27, 2026)
+- [x] **Toggle Button** in sidebar header (chevron-left to collapse, chevron-right to expand)
+- [x] **Collapsed State** (~64px width)
+  - Shows only investor avatar initials
+  - Expand button at top
+  - Add investor button (+) always visible
+  - Tooltips on hover show investor name and type
+  - Selected investor highlighted with blue ring
+- [x] **Expanded State** (~320px width)
+  - Full investor list with names, types, locations
+  - Pipeline stage badges
+  - Search bar
+  - All action buttons (Browse Global, Import CSV, Add)
+- [x] **Smooth Transition** animation between states
+- [x] **Maximized Profile View** when sidebar is collapsed
+
+### CSV Import Wizard ✅ (Jan 27, 2026)
+- [x] **Import CSV Button** in Investor List sidebar
+  - Green upload icon next to Globe (Browse Global) and Plus (Add Investor) buttons
+  - Opens full-page Import Wizard modal
+- [x] **Step 1 - Upload File**
+  - Drag-and-drop zone for CSV files
+  - Click to browse file selection
+  - File validation (CSV format only, max 5MB)
+  - File preview showing: filename, row count, column count, file size
+  - Detected columns displayed as badges
+  - Preview table showing first 10 rows
+  - "Remove" button to clear file and start over
+- [x] **Step 2 - Map Fields**
+  - 24 mappable investor fields displayed
+  - Auto-mapping logic matches CSV headers to field names
+  - "Mapped" badge indicator for auto-mapped fields
+  - Sample values shown for each mapping
+  - Required field indicator (*) for investor_name
+  - Mapping summary: "X of Y columns mapped"
+  - Dropdown selection for manual mapping changes
+- [x] **Step 3 - Review & Import**
+  - Summary stats: Valid Rows, Mapped Fields, Skipped (No Name)
+  - Field mapping badges showing: Field ← CSV Column
+  - Preview table of first 5 transformed rows
+  - Warning note about duplicate names being rejected
+  - Import button showing: "Import X Investors"
+  - Progress indicator during import
+- [x] **Import Execution**
+  - Creates investors via POST /api/investor-profiles
+  - Sets source='spreadsheet_import' for tracking
+  - Success toast: "Successfully imported X investors"
+  - Warning toast for rejected duplicates
+  - Auto-refresh investor list after import
+- [x] **Accessibility**
+  - aria-describedby for dialog accessibility
+  - Screen reader text for wizard description
+
+### Fund Manager Investor Requests Workflow ✅
+- [x] **Global Investor Browser** (Fund Manager)
+  - Globe button in Investor List opens slide-over browser
+  - **Restricted preview** - only shows: Name, Job Title, Type, Location, Fund count
+  - Does NOT expose: Notes, evidence, pipeline stages, investment amounts, contact details
+  - Search and filter by type/country
+  - "My Requests" tab shows pending/approved/denied status
+- [x] **Request Investor Workflow**
+  - FM clicks "Request" on global investor
+  - Confirmation dialog with optional reason
+  - Creates `InvestorAssignmentRequest` (pending status)
+  - Blocks duplicate pending requests and already-assigned investors
+- [x] **Admin Requests Inbox** (/admin/investor-requests)
+  - Stats cards: Pending, Approved, Denied counts
+  - Table with investor, fund, requester, reason, date, status
+  - Approve dialog: Select owner (default=requester), adds to "Investors" stage
+  - Deny dialog: Optional denial reason visible to FM
+- [x] **API Endpoints:**
+  - `GET /api/global-investors` - Restricted preview for all investors
+  - `POST /api/investor-requests` - FM creates request
+  - `GET /api/investor-requests` - FM's own requests
+  - `GET /api/admin/investor-requests` - All requests (Admin)
+  - `PUT /api/admin/investor-requests/{id}/approve` - Approve and assign
+  - `PUT /api/admin/investor-requests/{id}/deny` - Deny with reason
+- [x] **Bug Fix:** `investor-profiles-with-pipeline` endpoint now includes investors from `investor_fund_assignments` collection
+
+### Enhanced Admin Features ✅
+- [x] **Compare & Merge Modal** for duplicate investors
+  - Side-by-side comparison of two investor records
+  - Click on value to select which source to use
+  - Edit merged values directly in center column
+  - Step 1: Compare & Merge data, Step 2: Assign to funds
+  - Green highlighting shows selected source per field
+- [x] **Unassign from Funds**
+  - Assign to Fund modal shows current fund assignments
+  - Unassign button for non-original assignments
+  - Cannot unassign original fund (protected)
+  - Confirmation dialog before unassign
+- [x] **View Investor Details** from All Investors page
+  - Actions dropdown includes "View Details" option
+  - Slide-over panel shows full investor profile
+  - Displays: Identity, Contact, Investment sections
+  - Shows fund assignments with badges
+
+### Admin "Assign to Fund" Feature ✅
+- [x] **"Assign to Fund" Action Button** on Admin All Investors page
+  - Available in Actions dropdown menu for each investor
+  - Opens modal to assign investor to multiple funds
+- [x] **Multi-Fund Assignment Modal**
+  - Shows currently assigned funds with badges (Original for legacy)
+  - Add multiple fund assignments in one action
+  - Select target fund, fund manager owner, and initial pipeline stage per fund
+  - "Add Another Fund" button for bulk assignments
+- [x] **Fund-Specific Pipeline Entries**
+  - Each assignment creates independent pipeline entry in target fund
+  - Stage, tasks, and capital data tracked separately per fund
+  - Investor appears on multiple funds' Kanban boards independently
+- [x] **Duplicate Assignment Prevention**
+  - Blocks re-assignment to same fund with "Already assigned" message
+  - Validates against both new assignments and legacy fund_id
+- [x] **Admin-Only Access Control**
+  - All assignment endpoints require admin role (403 for Fund Managers)
+  - DELETE endpoint removes assignment and related pipeline entry
+- [x] **API Endpoints:**
+  - `GET /api/investors/{id}/assignments` - Get fund assignments
+  - `POST /api/admin/investor-fund-assignments` - Create assignments
+  - `DELETE /api/admin/investor-fund-assignments/{id}` - Remove assignment
+  - `GET /api/admin/funds/{id}/fund-managers` - Get fund managers for assignment
+
+### Duplicate Investor Management & Fund Assignment ✅
+- [x] **Duplicate Investors Admin Page** (/admin/duplicates)
+  - Stats cards showing duplicate groups and total duplicate records
+  - Expandable duplicate groups with investor details table
+  - Case-insensitive duplicate detection by name
+- [x] **Merge Duplicate Investors**
+  - Select which record to keep
+  - Automatically reassigns related data (evidence, notes, call logs, tasks)
+  - Deletes duplicate records after merge
+- [x] **Delete Individual Investors** (admin only)
+  - Deletes investor and all related data
+- [x] **Duplicate Prevention**
+  - Block creation of investor with same name in same fund
+  - Case-insensitive matching
+  - Returns helpful error message with suggestion
+- [x] **Fund Assignment Logic**
+  - Fund Managers only see their assigned funds via GET /api/funds
+  - Fund Managers cannot access unassigned fund data (403 Forbidden)
+  - Admin sees all funds
+- [x] **Refactored Investor Form Fields**
+  - Unified InvestorFormFields.jsx with view/edit modes
+  - InvestmentIdentityFields, InvestmentContextFields, ContactRelationshipFields components
+  - Used by both InvestorProfile.jsx (view/edit) and CreateInvestorDialog.jsx (create)
+
+### Evidence & Sources Block ✅
+- [x] **Evidence & Sources block** on Investor Profile page (separate from investor data)
+- [x] **Evidence Entry fields**:
+  - Source Title (required)
+  - Source URL (optional link)
+  - Selected Text (long text for quotes/excerpts)
+  - Notes (long text for interpretation)
+  - Confidence (Low/Medium/High/Verified with color-coded badges)
+  - Captured Date (system timestamp, immutable)
+  - Captured By (system: logged-in user, immutable)
+- [x] **List View**: Newest entries first, with expandable rows
+- [x] **Expandable Content**: Click to reveal full Selected Text and Notes
+- [x] **Actions**: Add Evidence, Copy Link, Open Link, Edit, Delete
+- [x] **Data Rules**: 
+  - Append-only by default (editing preserves captured_date/captured_by)
+  - Does NOT modify investor profile fields
+- [x] **Chrome Extension Ready**: `/api/investors/{investor_id}/evidence/capture` endpoint
+
+### Call Logs Feature ✅
+- [x] **Call Logs Sub-tab** in Communication Center
+- [x] **Create/Edit Call Log** with fields:
+  - Investor (required, dropdown)
+  - Call Date/Time (datetime picker)
+  - Outcome (dropdown: No Answer, Connected, Interested, Not Interested, Follow-up Needed)
+  - Notes (text area)
+  - Next Step (optional text)
+- [x] **Create Follow-up Task** toggle:
+  - When enabled, automatically creates Task Manager item
+  - Task title: "Follow up with {Investor Name}" (editable)
+  - Linked to same investor
+  - Inherits investor's current Kanban stage (for color)
+  - Priority (default Medium, editable)
+  - Due date (optional)
+- [x] **Call Log List** with filters by investor and date range
+- [x] **Outcome badges** with color-coded icons
+- [x] **"Task created ✅"** indicator for logs that created tasks
+- [x] **Slide-over detail panel** when clicking a log (shows all info, Edit/Delete)
+
+### User-Created Tasks Feature ✅
+- [x] **Create Task Button** - Opens dialog to create manual tasks
+- [x] **Pipeline Stage Selection** - Required field, shows all 12 stages with color indicators
+- [x] **Task Templates Dropdown** - Auto-populates based on selected stage (e.g., "Send intro email" for Intro Email stage)
+- [x] **Task Fields**:
+  - Task Title (auto-filled from template, editable)
+  - Related Investor (optional dropdown)
+  - Related Kanban Stage (required)
+  - Priority (Low/Medium/High)
+  - Complete-by Date (optional)
+- [x] **Color Rules** - Tasks inherit Kanban lane color (left border, stage badges)
+- [x] **Combined Task List** - User-created tasks coexist with system-generated tasks
+- [x] **Task Actions**:
+  - Complete button (checkmark) - Marks task done, removes from count
+  - Delete button (trash) - Permanently removes task
+  - View button - For tasks linked to investors, navigates to profile
+- [x] **Badge Differentiation** - "Manual" badge for user tasks, "System" badge for auto-generated
+- [x] **Updated Stats** - Shows Total, System Tasks, Manual Tasks, High Priority, Overdue
+
+### Task Manager (System-Generated) ✅
+- [x] **Task Manager Tab** - System-generated tasks for data validation issues
+- [x] **Bell Icon Notification** - Shows combined count (system + manual) in header
+- [x] **Task List UI** showing:
+  - Task description and detail
+  - Investor avatar, name, and type
+  - Pipeline stage badge (color-coded)
+  - Priority badge (High/Medium/Low)
+  - Overdue badge and highlighting
+- [x] **Due Date Picker** - Set/update completion dates for each task
+- [x] **Fix Button** - Navigates to Investor Profile in edit mode
+- [x] **Auto-Resolution** - System tasks automatically removed when data issues are fixed
+- [x] **Task Types**:
+  - `missing_investment_size` - For investors in Money Transfer/Transfer Date without investment_size (High Priority)
+  - `missing_expected_ticket` - For investors without expected_ticket_amount (Medium Priority)
+  - `missing_contact` - For investors in meeting stages without contact info (Low Priority)
+
+### Capital Overview Command Center
+- [x] **Capital Overview Tab** - Default home view for Fund Managers
+- [x] **Deployed Capital KPI Card** showing:
+  - Sum of investment_size for investors in 'Money Transfer' or 'Transfer Date' stages
+  - Progress bar to target
+  - "Target reached" badge with green arrow when target exceeded
+  - Investor count
+- [x] **Validation for Missing Investment Size**:
+  - Alert banner when investors in final stages have no investment_size
+  - "View & Fix" expandable list
+  - "Fix" button navigates to Investor Profile in edit mode
+- [x] **Fund Target Comparison**:
+  - Shows fund target_raise
+  - Calculates remaining amount
+- [x] **Deployed Investors List** - Clickable cards showing investment amounts
+- [x] **Summary Stats Row**: Total in Final Stages, With Investment Size, Missing Data, Avg. Investment
+- [x] **Investment Size Field** added to Investor Profiles (with currency)
+
+### Enhanced Investor Cards & Mini Profile
+- [x] **Pipeline Kanban Board** - 12 stages (Investors → Transfer Date)
+- [x] **Enhanced Investor Cards** displaying: name, type+sector, location, expected ticket, ALKNZ POC
+- [x] **Mini Investor Profile (Slide-over Panel)** with sections for Quick Identity, Contact & Relationship, Investment Context, Pipeline Context, Notes
+- [x] **Navigation Flow**: Card click → Mini Profile → "View Full Profile" → Full Investor Profile
+
+### Backend (FastAPI + MongoDB)
+- [x] JWT authentication with password hashing (bcrypt)
+- [x] User CRUD with auto-generated passwords
+- [x] Forced password reset flow for new users
+- [x] Fund/SPV CRUD with target_raise field
+- [x] Investor Profile CRUD with investment_size field
+- [x] Pipeline Stages API (12 default stages per fund)
+- [x] Investor Pipeline API (track stage, position, stage_entered_at)
+- [x] Investor Notes API (CRUD with author tracking)
+- [x] **Capital Overview API** (`GET /api/funds/{fund_id}/capital-overview`)
+- [x] **Task Manager APIs**:
+  - `GET /api/task-templates` - Get task templates by pipeline stage
+  - `GET /api/funds/{fund_id}/tasks` - Get system-generated tasks
+  - `GET /api/funds/{fund_id}/user-tasks` - Get user-created tasks
+  - `GET /api/funds/{fund_id}/all-tasks` - Get combined tasks (system + user)
+  - `POST /api/funds/{fund_id}/user-tasks` - Create user task
+  - `PUT /api/user-tasks/{task_id}` - Update user task
+  - `PUT /api/user-tasks/{task_id}/complete` - Mark task complete
+  - `DELETE /api/user-tasks/{task_id}` - Delete user task
+- [x] **Call Logs APIs**:
+  - `GET /api/call-outcomes` - Get valid outcome options
+  - `GET /api/funds/{fund_id}/call-logs` - Get call logs (filterable by investor, date range)
+  - `GET /api/call-logs/{call_log_id}` - Get single call log
+  - `POST /api/funds/{fund_id}/call-logs` - Create call log (optionally creates follow-up task)
+  - `PUT /api/call-logs/{call_log_id}` - Update call log
+  - `DELETE /api/call-logs/{call_log_id}` - Delete call log
+- [x] **Evidence & Sources APIs**:
+  - `GET /api/confidence-levels` - Get valid confidence options
+  - `GET /api/investors/{investor_id}/evidence` - Get evidence entries (newest first)
+  - `GET /api/evidence/{evidence_id}` - Get single evidence entry
+  - `POST /api/investors/{investor_id}/evidence` - Create evidence entry
+  - `POST /api/investors/{investor_id}/evidence/capture` - Chrome extension endpoint
+  - `PUT /api/evidence/{evidence_id}` - Update evidence (preserves captured_date/captured_by)
+  - `DELETE /api/evidence/{evidence_id}` - Delete evidence entry
+
+### Frontend (React + TailwindCSS)
+- [x] **Five tabs**: Capital Overview | Task Manager | Investor Profiles | Fundraising Pipeline | Communication Center
+- [x] Login page with floating ALKNZ logo animation
+- [x] Set New Password page for forced reset flow
+- [x] Fund Manager dashboard with full-height swimlanes
+- [x] Dark theme with ALKNZ blue/black gradient branding
+- [x] Bell icon with task count notification badge in header
+- [x] **Communication Center** with 3 sub-tabs:
+  - Inbox (Email) - placeholder/coming soon
+  - **Call Logs** - full CRUD with filters, detail slide-over, task creation
+  - Templates - placeholder/coming soon
+
+### Data Models
+- Users: id, first_name, last_name, email, role, status, password_hash, avatar_url, must_reset_password
+- Funds: id, name, fund_type, vintage_year, currency, **target_raise**, status, thesis
+- Investor Profiles:
+  - Investment Identity: investor_name, title, gender, nationality, age, job_title, investor_type, sector, country, city, description, website
+  - Investment Context: wealth, has_invested_with_alknz, previous_alknz_funds, expected_ticket_amount, expected_ticket_currency, typical_ticket_size, **investment_size**, **investment_size_currency**
+  - Contact & Relationship: contact_name, contact_title, contact_phone, contact_email, contact_whatsapp, alknz_point_of_contact_id
+- PipelineStages: id, fund_id, name, position, is_default
+- InvestorPipeline: id, fund_id, investor_id, stage_id, position, stage_entered_at, last_interaction_date
+- InvestorNotes: id, investor_id, content, created_by, created_by_name, created_at
+- **TaskDueDates**: id, task_id, fund_id, due_date, updated_at, updated_by
+- **UserTasks**: id, fund_id, title, stage_id, stage_name, investor_id (optional), investor_name, priority, due_date, status (open/completed), created_by, created_by_name, created_at, updated_at
+- **CallLogs**: id, fund_id, investor_id, investor_name, call_datetime, outcome, notes, next_step, task_created, task_id, created_by, created_by_name, created_at, updated_at
+- **EvidenceEntries**: id, investor_id, source_title, source_url, selected_text, notes, confidence, captured_date, captured_by, captured_by_name, updated_at
+
+### Code Architecture
+```
+/app/frontend/src/components/fund-manager/
+├── CapitalOverview.jsx    - Command Center home view
+├── TaskManager.jsx        - Task management for data validation issues
+├── PipelineBoard.jsx      - Kanban board with drag-drop
+├── PipelineCard.jsx       - Investor card on Kanban board
+├── InvestorMiniProfile.jsx - Slide-over mini profile
+├── InvestorProfile.jsx    - Full investor profile view/edit
+├── InvestorList.jsx       - Investor sidebar list
+├── InvestorFormFields.jsx - Form field components (includes investment_size)
+├── EvidenceBlock.jsx      - Evidence & Sources block with expandable rows
+├── ImportWizard.jsx       - CSV Import Wizard (3-step: Upload, Map, Review)
+├── constants.js           - Shared constants and helpers
+├── CommunicationCenter.jsx - Communication hub with Inbox, Call Logs, Templates
+└── index.js               - Barrel export
+```
+
+## Prioritized Backlog
+
+### P0 - Core (DONE ✅)
+- [x] Login/Auth with forced password reset
+- [x] Admin Dashboard
+- [x] User Management
+- [x] Fund Management
+- [x] Fund Manager Dashboard with Investor Profiles
+- [x] Fundraising Pipeline Kanban Board
+- [x] Mini Investor Profile with Notes
+- [x] Capital Overview Command Center
+- [x] **Task Manager** - System-generated + user-created tasks
+- [x] **Communication Center** with Call Logs (UI shell) - Inbox, Call Logs, Templates sub-tabs
+- [x] **Evidence & Sources** - Append-only evidence entries per investor
+
+### P1 - Next Phase
+- [x] Implement Fund Assignment restrictions (FM only sees assigned funds' investors) ✅ DONE
+- [x] Duplicate Investor Detection and Merge ✅ DONE
+- [x] Refactored Investor Form Logic ✅ DONE
+- [x] Admin "Assign to Fund" feature ✅ DONE
+- [ ] Test Relationship Intelligence feature (`relationship_strength`, `decision_role` fields)
+- [ ] CSV Import - Field Validation (warn when numeric values mapped to text fields)
+- [ ] Add bulk delete with checkboxes to investor list
+- [ ] Persist sidebar collapsed state in localStorage
+- [ ] Add Evidence & Sources block to Create Investor panel
+- [ ] Office Management features
+- [ ] Search/filter enhancements across investors
+
+### P2 - Future
+- [ ] Gmail Integration (ON PAUSE per user request)
+- [ ] Admin Dashboard Filters (time periods: this quarter, YTD)
+- [ ] Templates Feature - Build out UI and backend for communication templates
+- [ ] Forgot Password flow for Admins
+- [ ] Prediction Logic / Scoring system for investors
+- [ ] Bulk actions on pipeline board
+- [ ] Quick action buttons (WhatsApp, Email, Call) on cards
+- [ ] Email notifications
+- [ ] Activity logs
+- [ ] Export/reporting
+- [ ] Chrome Extension Boilerplate
+
+## Key API Endpoints
+- POST /api/auth/login - User login
+- POST /api/auth/change-password - Set new password (forced reset)
+- GET /api/funds - Get all funds (Admin) or assigned funds (Fund Manager)
+- GET /api/my-funds - Get current user's assigned funds
+- GET /api/investor-profiles/fund/{fund_id} - Get investors by fund
+- GET /api/investor-profiles-with-pipeline/fund/{fund_id} - Get investors with pipeline status
+- PUT /api/investor-profiles/{id} - Update investor profile (includes investment_size)
+- GET /api/funds/{fund_id}/pipeline-stages - Get stages
+- PUT /api/investor-pipeline/move/{investor_id} - Move investor to different stage
+- GET /api/investor-notes/{investor_id} - Get notes for investor
+- POST /api/investor-notes - Create new note
+- **GET /api/funds/{fund_id}/capital-overview** - Get capital overview metrics
+- **GET /api/funds/{fund_id}/tasks** - Get system-generated tasks for data validation
+- **PUT /api/tasks/due-date** - Update task due date
+- **GET /api/admin/duplicate-investors** - Get duplicate investor groups (Admin only)
+- **POST /api/admin/merge-investors** - Merge duplicate investors (Admin only)
+- **DELETE /api/admin/investor/{id}** - Delete investor and all related data (Admin only)
+- **GET /api/admin/all-investors** - Get all investors across all funds (Admin only)
+
+## Technical Stack
+- Backend: FastAPI + Motor (async MongoDB)
+- Frontend: React 19 + TailwindCSS + Shadcn UI
+- Auth: JWT with bcrypt password hashing
+- Database: MongoDB
+- Drag & Drop: @hello-pangea/dnd

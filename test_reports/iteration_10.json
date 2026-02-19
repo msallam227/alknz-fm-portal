@@ -1,0 +1,85 @@
+{
+  "summary": "Completed comprehensive testing of Admin-only 'Assign to Fund' feature. All 18 backend API tests passed. Frontend UI fully functional with proper role-based access control.",
+  
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "Admin login returns valid token with ADMIN role",
+    "Fund Manager login returns valid token with FUND_MANAGER role",
+    "GET /api/investors/{investor_id}/assignments - Admin can get investor assignments",
+    "GET /api/investors/{investor_id}/assignments - Fund Manager can view assignments (read access)",
+    "GET /api/investors/{investor_id}/assignments - Returns 404 for non-existent investor",
+    "GET /api/investors/{investor_id}/assignments - Returns 401/403 for unauthenticated",
+    "POST /api/admin/investor-fund-assignments - Admin can create fund assignments",
+    "POST /api/admin/investor-fund-assignments - Fund Manager gets 403 (forbidden)",
+    "POST /api/admin/investor-fund-assignments - Returns 404 for non-existent investor",
+    "POST /api/admin/investor-fund-assignments - Prevents duplicate assignment (returns 'Already assigned')",
+    "DELETE /api/admin/investor-fund-assignments/{id} - Fund Manager gets 403 (forbidden)",
+    "DELETE /api/admin/investor-fund-assignments/{id} - Returns 404 for non-existent assignment",
+    "GET /api/admin/funds/{fund_id}/fund-managers - Admin can get fund managers",
+    "GET /api/admin/funds/{fund_id}/fund-managers - Fund Manager gets 403 (forbidden)",
+    "GET /api/admin/funds/{fund_id}/fund-managers - Returns 404 for non-existent fund",
+    "Assignment response contains required fields (fund_id, fund_name, is_legacy)",
+    "Admin can assign investor to multiple funds in one request",
+    "New assignment creates pipeline entry in the target fund",
+    "UI: Admin sees 'Assign to Fund' button in All Investors table Actions menu",
+    "UI: Assign to Fund modal shows currently assigned funds with badges",
+    "UI: Modal allows selecting multiple funds with manager and stage per fund",
+    "UI: Modal shows 'No available funds' when investor already assigned to all funds",
+    "UI: Fund Manager cannot see 'All Investors' link in sidebar",
+    "UI: Fund Manager redirected from /admin/all-investors to /fm"
+  ],
+  
+  "test_report_links": [
+    "/app/backend/tests/test_investor_fund_assignments.py",
+    "/app/test_reports/pytest/investor_fund_assignments_results.xml"
+  ],
+  
+  "action_items": [],
+  
+  "critical_code_review_comments": [
+    "Investor fund assignment endpoints properly protected with require_admin dependency",
+    "Duplicate assignment prevention works correctly - returns 'Already assigned to this fund'",
+    "Legacy assignments (original fund_id in investor profile) shown with 'Original' badge",
+    "Pipeline entries automatically created when assigning investor to a fund",
+    "Fund Manager correctly denied access to admin endpoints (403 Forbidden)",
+    "AssignToFundModal.jsx properly fetches fund managers and pipeline stages per fund",
+    "AllInvestorsPage.js correctly implements Actions dropdown with Assign to Fund option"
+  ],
+  
+  "updated_files": [
+    "/app/backend/tests/test_investor_fund_assignments.py"
+  ],
+  
+  "success_rate": {
+    "backend": "100% (18/18 tests passed)",
+    "frontend": "100% (all UI features working)"
+  },
+  
+  "test_credentials": {
+    "Admin": {
+      "email": "khaled@alknzventures.com",
+      "password": "Admin123!"
+    },
+    "Fund Manager": {
+      "email": "mariam@alknzventures.com",
+      "password": "Mariam123!"
+    }
+  },
+  
+  "seed_data_creation": "No new seed data created. Used existing investors including 'Missing Ticket Corp' which is assigned to 3 funds (ALKNZ Fund I, Test Fund, Saferoad SPV).",
+  
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  
+  "context_for_next_testing_agent": "Investor Fund Assignment feature fully working. Admin can assign investors to multiple funds via All Investors page > Actions > Assign to Fund. The system uses investor_fund_assignments collection to track fund-specific data. Legacy assignments (original fund_id in investor profile) are shown with 'Original' badge. Pipeline entries are created automatically when assigning to a fund. Fund Manager (Mariam) is assigned to ALKNZ Fund I only and cannot access admin endpoints. 'Missing Ticket Corp' investor is currently assigned to all 3 funds (ALKNZ Fund I, Test Fund 1769422718381, Saferoad SPV)."
+}

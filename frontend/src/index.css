@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-deepest: #02040A;
+  --bg-transition: #0A0A1F;
+  --bg-cards: #0A1628;
+  --glow-blue: #002D72;
+  --glow-blue-light: #0047AB;
+  --borders: #1A2744;
+  --primary-accent: #0047AB;
+  --primary-hover: #0052CC;
+  --secondary-accent: #00A3FF;
+  --success: #22C55E;
+  --danger: #EF4444;
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, var(--bg-deepest) 0%, var(--bg-transition) 50%, var(--glow-blue) 100%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+code, pre, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-deepest);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--borders);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--glow-blue);
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(0, 71, 171, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(0, 71, 171, 0.7); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient background utility */
+.bg-gradient-main {
+  background: linear-gradient(135deg, #02040A 0%, #0A0A1F 50%, #002D72 100%);
+  background-size: 200% 200%;
+}
+
+/* Button styles */
+.btn-primary {
+  background: linear-gradient(135deg, #0047AB 0%, #0052CC 100%);
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 71, 171, 0.4);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 71, 171, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--bg-transition);
+  border: 1px solid var(--borders);
+  color: var(--text-main);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--glow-blue-light);
+  background-color: rgba(0, 71, 171, 0.1);
+}
+
+/* Card styles */
+.card {
+  background-color: rgba(10, 22, 40, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--borders);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(0, 71, 171, 0.5);
+}
+
+/* Input styles */
+.input-field {
+  background-color: rgba(2, 4, 10, 0.6);
+  border: 1px solid var(--borders);
+  color: var(--text-main);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--glow-blue-light);
+  box-shadow: 0 0 0 2px rgba(0, 71, 171, 0.3);
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: #475569;
+}
+
+/* Table styles */
+.table-header {
+  background-color: rgba(2, 4, 10, 0.8);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.table-row {
+  border-bottom: 1px solid var(--borders);
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: rgba(0, 71, 171, 0.1);
+}
+
+/* Sidebar styles */
+.sidebar {
+  background: linear-gradient(180deg, #02040A 0%, #0A0A1F 100%);
+  border-right: 1px solid var(--borders);
+}
+
+.sidebar-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: var(--text-muted);
+}
+
+.sidebar-item:hover {
+  background-color: rgba(0, 71, 171, 0.15);
+  color: var(--text-main);
+}
+
+.sidebar-item.active {
+  background-color: rgba(0, 71, 171, 0.2);
+  color: var(--secondary-accent);
+  border-left: 3px solid var(--secondary-accent);
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-success {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #22C55E;
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.badge-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+}
+
+.badge-primary {
+  background-color: rgba(0, 71, 171, 0.2);
+  color: var(--secondary-accent);
+}
+
+/* Glass morphism */
+.glass {
+  background: rgba(10, 22, 40, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--borders);
+}
+
+/* Status indicator */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-active {
+  background-color: #22C55E;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-inactive {
+  background-color: #EF4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+/* Text with glow */
+.text-glow {
+  text-shadow: 0 0 20px rgba(0, 71, 171, 0.5);
+}
+
+/* Shadcn overrides for dark theme */
+@layer base {
+  :root {
+    --background: 222 47% 2%;
+    --foreground: 0 0% 100%;
+    --card: 220 47% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 47% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 217 100% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 47% 16%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 47% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 220 47% 16%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 40% 18%;
+    --input: 220 40% 18%;
+    --ring: 217 100% 34%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-[#1A2744];
+  }
+  body {
+    @apply text-white;
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "identity": {
+    "name": "ALKNZ Portal",
+    "type": "Internal Admin Dashboard",
+    "theme_mode": "dark",
+    "emotional_tone": "Professional, Secure, Exclusive, Dark Tech, Fintech",
+    "logo_url": "https://cdn.prod.website-files.com/66c1ff66234911f96b0e0367/66d5ccad639d4c3a5079e64e_ALKNZ_Main%20logo.svg"
+  },
+  "typography": {
+    "headings": {
+      "family": "Manrope, sans-serif",
+      "weights": ["400", "600", "800"],
+      "usage": "Page titles, Card headers, Section headings"
+    },
+    "body": {
+      "family": "Inter, sans-serif",
+      "weights": ["300", "400", "500"],
+      "usage": "Table data, Form inputs, Paragraphs"
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "usage": "IDs, API keys, Technical data"
+    }
+  },
+  "colors": {
+    "palette": {
+      "bg_main": "#0B1424",
+      "bg_cards": "#0D192D",
+      "bg_deep": "#080F1B",
+      "borders": "#16213D",
+      "primary_accent": "#7C63F4",
+      "deep_accent": "#410C9B",
+      "secondary_accent": "#A71A51",
+      "success": "#81BB3F",
+      "text_main": "#E0CBDE",
+      "text_muted": "#94A3B8"
+    },
+    "usage_rules": {
+      "background": "Use bg_main for page background, bg_deep for sidebar",
+      "cards": "Use bg_cards for containers/widgets with border-borders",
+      "primary_action": "Use primary_accent for main CTAs (Login, Create, Save)",
+      "secondary_action": "Use deep_accent or transparent with border for secondary actions",
+      "text": "Use text_main for primary content, text_muted for labels/meta"
+    }
+  },
+  "layout": {
+    "structure": "Sidebar + Topbar + Main Content Area",
+    "grid_system": "Bento Grid (CSS Grid) for dashboard widgets",
+    "spacing": {
+      "container_padding": "p-6 md:p-8",
+      "widget_gap": "gap-6",
+      "sidebar_width": "w-64"
+    },
+    "z_index": {
+      "sidebar": 40,
+      "topbar": 30,
+      "modal": 50,
+      "toast": 60
+    }
+  },
+  "components": {
+    "buttons": {
+      "style": "rounded-md font-medium transition-all duration-200",
+      "variants": {
+        "primary": "bg-[#7C63F4] hover:bg-[#6b54d4] text-white shadow-[0_0_15px_rgba(124,99,244,0.3)]",
+        "secondary": "bg-[#080F1B] border border-[#16213D] text-[#E0CBDE] hover:border-[#7C63F4]",
+        "ghost": "hover:bg-[#16213D] text-[#E0CBDE]"
+      }
+    },
+    "cards": {
+      "style": "bg-[#0D192D] border border-[#16213D] rounded-xl shadow-sm hover:border-[#7C63F4]/30 transition-colors"
+    },
+    "inputs": {
+      "style": "bg-[#080F1B] border-[#16213D] text-[#E0CBDE] focus:border-[#7C63F4] focus:ring-1 focus:ring-[#7C63F4] placeholder:text-slate-600"
+    },
+    "sidebar": {
+      "style": "bg-[#080F1B] border-r border-[#16213D] h-screen fixed left-0 top-0"
+    },
+    "tables": {
+      "style": "w-full text-left text-sm",
+      "header": "bg-[#080F1B] text-[#94A3B8] uppercase tracking-wider font-semibold",
+      "row": "border-b border-[#16213D] hover:bg-[#16213D]/50 transition-colors"
+    }
+  },
+  "motion": {
+    "logo_animation": {
+      "type": "floating",
+      "library": "framer-motion",
+      "settings": {
+        "y": [0, -10, 0],
+        "transition": { "duration": 4, "repeat": "Infinity", "ease": "easeInOut" }
+      }
+    },
+    "page_transition": {
+      "initial": { "opacity": 0, "y": 10 },
+      "animate": { "opacity": 1, "y": 0 },
+      "exit": { "opacity": 0, "y": -10 }
+    }
+  },
+  "assets": {
+    "icons": "lucide-react",
+    "logo": "https://cdn.prod.website-files.com/66c1ff66234911f96b0e0367/66d5ccad639d4c3a5079e64e_ALKNZ_Main%20logo.svg"
+  },
+  "instructions_to_main_agent": [
+    "Implement the Login page at /login with the floating logo animation.",
+    "Implement the Admin Layout with Sidebar and Topbar.",
+    "Create the Dashboard Home with summary widgets.",
+    "Implement User Management (CRUD) with role assignment.",
+    "Implement Fund Management (CRUD) with sectors/regions.",
+    "Ensure ALL colors match the palette exactly. Do not use default Tailwind grays.",
+    "Use 'Manrope' for all headings and 'Inter' for body text.",
+    "Add data-testid to all interactive elements.",
+    "Use Shadcn UI components but override styles to match the dark theme tokens.",
+    "Do NOT create a public signup page.",
+    "Mock the backend calls for now, but structure the services for easy integration."
+  ],
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms.",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures or noise overlays can be used for the background."
+  ]
+}

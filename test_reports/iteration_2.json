@@ -1,0 +1,47 @@
+{
+  "summary": "Completed comprehensive testing of Investment Context section in Fund Manager Dashboard - all backend APIs and frontend features working perfectly",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "Fund Manager login with demo.fm.1769433733@alknz.com / Password123!",
+    "Investment Context section displays in investor profile view",
+    "Wealth field is editable text input - tested with 'Ultra High Net Worth - Family Office'",
+    "Has Invested with ALKNZ Before dropdown works (Yes/No/Unknown) - tested all options",
+    "ALKNZ Fund/SPV dropdown shows all available funds - 4 options available",
+    "Expected Ticket Size has numeric input + currency selector - tested EUR currency",
+    "Typical Ticket Size is optional numeric field - working correctly",
+    "All Investment Context fields save correctly when updating investor profile",
+    "Fund Manager can create new investor with Investment Context fields",
+    "Backend API /api/all-funds-spvs returns fund data for dropdown",
+    "Backend API /api/investor-profiles/{id}/check-history works correctly",
+    "Auto-population logic for 'Has Invested with ALKNZ Before' field",
+    "Currency formatting displays correctly (€1.5M, €750K)",
+    "Form validation prevents submission without required fields",
+    "Edit/Save functionality works seamlessly",
+    "Investment Context data persistence across page interactions"
+  ],
+  
+  "test_report_links": ["/app/backend_test.py"],
+  
+  "action_item_for_main_agent": "",
+  
+  "updated_files": ["/app/backend_test.py"],
+  
+  "success_percentage": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  
+  "should_call_test_agent_after_fix": "false",
+  "should_main_agent_test_itself": "false"
+}

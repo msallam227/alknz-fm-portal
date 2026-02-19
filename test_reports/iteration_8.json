@@ -1,0 +1,98 @@
+{
+  "summary": "Completed comprehensive testing of Admin All Investors page. Backend API (21/21 tests passed) and Frontend UI fully functional. All required columns displayed, filters working, sorting working, access control enforced.",
+  
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/admin/all-investors?source=manual",
+        "issue": "Source filter returns 0 results because 'source' field is not set in database for existing investors. Code defaults to 'manual' when displaying but filter query doesn't account for missing field. Need to update query to handle: {$or: [{source: 'manual'}, {source: {$exists: false}}]}",
+        "priority": "LOW"
+      }
+    ]
+  },
+  
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  
+  "passed_tests": [
+    "GET /api/admin/all-investors returns all investors with enriched data (admin access)",
+    "GET /api/admin/all-investors returns 403 for non-admin users",
+    "GET /api/admin/all-investors returns 401 for unauthenticated requests",
+    "Response contains total, investors, and filter_options fields",
+    "Each investor has all required columns: id, investor_name, job_title, investor_type, country, city, contact_email, contact_phone, source, source_label, created_at, evidence_count, latest_evidence_date, assigned_funds_count, assigned_fund_ids, assigned_fund_names",
+    "Filter options contain sources, countries, investor_types, funds",
+    "Evidence count included for each investor",
+    "Latest evidence date included for each investor",
+    "Assigned funds count and names included for each investor",
+    "John Smith has 2 evidence entries with latest_evidence_date",
+    "Investor type filter works (Family Office returns 3 investors)",
+    "Country filter works (USA returns 1 investor)",
+    "Assigned filter works (assigned returns 6, unassigned returns 0)",
+    "Fund filter works (filters by specific fund_id)",
+    "Search filter works (John returns 2 investors)",
+    "Sort by created_at desc works",
+    "Sort by investor_name asc works (alphabetical)",
+    "Sort by evidence_count desc works",
+    "Sort by latest_evidence desc works",
+    "All Investors nav item displays in Admin sidebar",
+    "All Investors page displays with correct header",
+    "Table shows all 10 required columns",
+    "6 investor rows displayed with data-testid attributes",
+    "Search input filters results in real-time",
+    "Type filter dropdown works",
+    "Country filter dropdown works",
+    "Assigned filter dropdown works",
+    "Clear filters button resets all filters",
+    "Sorting by clicking column headers works",
+    "Fund Manager redirected away from /admin/all-investors (403 access control)"
+  ],
+  
+  "test_report_links": [
+    "/app/backend/tests/test_all_investors.py",
+    "/app/test_reports/pytest/all_investors_results.xml"
+  ],
+  
+  "action_items": [
+    "MINOR: Fix source filter to handle missing 'source' field in database. Update query in server.py line 683-684 to: if source == 'manual': query['$or'] = [{'source': 'manual'}, {'source': {'$exists': False}}] else: query['source'] = source"
+  ],
+  
+  "critical_code_review_comments": [
+    "Backend endpoint properly aggregates evidence counts using MongoDB aggregation pipeline",
+    "Fund assignments correctly derived from both investor_pipeline and investor fund_id field",
+    "Filter options dynamically populated from actual data in database",
+    "Frontend uses proper data-testid attributes for all interactive elements",
+    "Table columns match spec requirements: Investor Name, Firm Name (job_title), Investor Type, Country/City, Email/Phone, Source, Created Date, Evidence Count, Assigned Funds, Latest Evidence Date",
+    "Sorting implemented for created_at, investor_name, evidence_count, latest_evidence columns"
+  ],
+  
+  "updated_files": [
+    "/app/backend/tests/test_all_investors.py"
+  ],
+  
+  "success_rate": {
+    "backend": "100% (21/21 tests passed)",
+    "frontend": "100% (all UI features working)"
+  },
+  
+  "test_credentials": {
+    "Admin": {
+      "email": "khaled@alknzventures.com",
+      "password": "Admin123!"
+    },
+    "Fund Manager (non-admin)": {
+      "email": "mariam@alknzventures.com",
+      "password": "Mariam123!"
+    }
+  },
+  
+  "seed_data_creation": "No new seed data created. Using existing 6 investors in database. John Smith (id: 4fd5f540-d8ae-431b-b058-52fa134be28a) has 2 evidence entries with latest_evidence_date of Jan 27, 2026.",
+  
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  
+  "context_for_next_testing_agent": "Admin All Investors page fully functional. 6 investors in system, all with source='manual' (displayed, but field not set in DB). John Smith has 2 evidence entries. All investors assigned to 1 fund each. Filters work: investor_type, country, assigned/unassigned, fund_id, search. Sorting works: created_at, investor_name, evidence_count, latest_evidence. Source filter has minor bug - returns 0 results because source field not set in DB documents."
+}
