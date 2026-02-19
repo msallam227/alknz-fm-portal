@@ -1,40 +1,22 @@
-version: '3.9'
-
 services:
-  mongo:
-    image: mongo:7
-    restart: unless-stopped
-    volumes:
-      - mongo_data:/data/db
-    ports:
-      - "27017:27017"
-
-  backend:
-    build: ./backend
-    restart: unless-stopped
+  api:
+    build:
+      context: ./backend
     environment:
-      MONGO_URL: mongodb://mongo:27017
-      DB_NAME: alknz_db
-      JWT_SECRET: ${JWT_SECRET:-alknz-portal-secret-key-2024}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
-    ports:
-      - "8000:8000"
-    depends_on:
-      - mongo
-    volumes:
-      - uploads_data:/app/uploads
+      - MONGO_URL=${MONGO_URL}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+    expose:
+      - "8001"
 
-  frontend:
+  web:
     build:
       context: ./frontend
-      args:
-        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-http://localhost:8000}
-    restart: unless-stopped
     ports:
-      - "3000:80"
+      - "10000:80"
     depends_on:
-      - backend
-
-volumes:
-  mongo_data:
-  uploads_data:
+      - api
